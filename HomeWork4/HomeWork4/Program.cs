@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HomeWork4.GUI;
+using HomeWork4.GUI_Controller;
+using System;
 
 namespace HomeWork4
 {
@@ -6,7 +8,18 @@ namespace HomeWork4
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+
+            GuiController guiController = new GuiController();
+            guiController.StartGuiController();
+
+           
+
+
+
+
+            Console.ReadKey();
+
+
         }
     }
 }
