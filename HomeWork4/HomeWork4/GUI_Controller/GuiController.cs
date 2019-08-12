@@ -1,63 +1,74 @@
-﻿using HomeWork4.GUI;
+﻿using HomeWork4.Game_Controller;
+using HomeWork4.GUI;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace HomeWork4.GUI_Controller
 {
+    enum MainMenuButtons { PLAY, QUIT }
+    enum BoxesInPlayerSelection { P2, P3, P4, P5, P6, P7 }
+
     class GuiController
     {
-        private enum MainMenuButtons { PLAY, QUIT }
-        private enum BoxesInPlayerSelection {
-            P2, P3, P4,
-            P5, P6, P7}
+        //KINTAMIEJI IR PROPERTIES
 
         public MenuWindow _MenuWindow { get; set; }
-        public PlayerSelectionWindow _PlayerSelectionWindow { get; }
+        public PlayerSelectionWindow _PlayerSelectionWindow { get; set; }
         public QuantityOfDiceWindow _QuantityOfDiceWindow { get; set; }
+        public GameWindow _GameWindow { get; set; }
+        public GameCotroller _GameCotroller { get; set; }
 
-        public int quantityOfPlayers { get; private set; }
-        private int number = 0;
-
-
-        private int ActiveButtonNumberInMainMenu;
-        private int ActiveBoxNumberInPlayerSelectionWindow;
-
-        private TextLine NumOfDice;
+        public int QuantityOfPlayers { get; set; }
+        public int DiceAmount { get; set; }
 
 
+        private int _activeButtonNumberInMainMenu;
+        private int _activeBoxNumberInPlayerSelectionWindow;
 
+        public TextLine NumOfDice { get; set; }
+        public bool closeGUI { get; set; } = false;
+        public bool closeAllProgram { get; set; } = false;
 
+        //KONSTRUKTORIUS
 
         public GuiController()
         {
-            _MenuWindow = new MenuWindow();
-            _PlayerSelectionWindow = new PlayerSelectionWindow();
-            _QuantityOfDiceWindow = new QuantityOfDiceWindow();
-            
-
         }
+
+        //FUNKCJIJOS 
 
         public void StartGuiController()
         {
-            UsersActivityInMainMenu();
+            while (closeGUI != true)
+            {
+                _MenuWindow = new MenuWindow(); // sukuriu MeniuWindow Objekta.
+
+                UsersActivityInMainMenu(); // Aktyvuoju pagrindini MENU;
+                if (closeGUI == true) { break; }
+                else
+                {
+                    _PlayerSelectionWindow = new PlayerSelectionWindow();
+                    UsersActivityInPlayerSelectionMenu();
+                    if (closeGUI == true) { break; }
+
+                    _QuantityOfDiceWindow = new QuantityOfDiceWindow();
+                    UsersActivityInQuantityOfDiceMenu();
+                }
+                closeGUI = true;
+            }
+            Console.ResetColor();
         }
-
-
-
 
         public void CheckActiveButton(List<Button> listOfButtons)
         {
-
             for (int i = 0; i < listOfButtons.Count; i++)
             {
-                if (listOfButtons[i].isActive == true )
+                if (listOfButtons[i].isActive == true)
                 {
-                    ActiveButtonNumberInMainMenu = i;
+                    _activeButtonNumberInMainMenu = i;
                 }
             }
-            
-
         }
 
         public void CheckActiveBoxes(List<Box> listOfBoxes)
@@ -67,14 +78,12 @@ namespace HomeWork4.GUI_Controller
             {
                 if (listOfBoxes[i].isActive == true)
                 {
-                    ActiveBoxNumberInPlayerSelectionWindow = i;
+                    _activeBoxNumberInPlayerSelectionWindow = i;
                 }
             }
-
-
         }
 
-        public void ActivateNextButton(int activatedButtonNr)
+        public void ActivateNextButtonInMainMenu(int activatedButtonNr)
         {
             switch (activatedButtonNr)
             {
@@ -91,199 +100,168 @@ namespace HomeWork4.GUI_Controller
             }
         }
 
-       
-
-
         public void UsersActivityInMainMenu()
         {
-            
-            bool needToRender = true;
-
-            do
+            bool closeWindow = false;
+            while (closeWindow != true)
             {
-                Console.Clear();
+                _MenuWindow.Render(); // nupiesiu pradini meniu
 
-                while (Console.KeyAvailable)
+                ConsoleKeyInfo pressedChar = Console.ReadKey(true);
+                switch (pressedChar.Key)
                 {
-                   
+                    case ConsoleKey.Escape:
+                        closeWindow = true; // isjungiu Menu Window
+                        closeGUI = true;
+                        break;
 
-                    ConsoleKeyInfo pressedChar = Console.ReadKey(true);
-                    int hashCode = pressedChar.Key.GetHashCode();
+                    case ConsoleKey.RightArrow:
+                        CheckActiveButton(_MenuWindow.MenuWindowButtons); // Patikrinu kuris siuo metu mygtukas yra aktyvus 
+                        ActivateNextButtonInMainMenu(_activeButtonNumberInMainMenu); // Aktyvuoju sekanti mygtuka, kadangi yra tik 2 mygtukai
+                        break;
 
-                    switch (pressedChar.Key)
-                    {
-                        case ConsoleKey.Escape:
-                            needToRender = false;
-                            break;
-                        case ConsoleKey.RightArrow:
-                            CheckActiveButton(_MenuWindow.MenuWindowButtons);
-                            ActivateNextButton(ActiveButtonNumberInMainMenu);
-                            break;
-                        case ConsoleKey.LeftArrow:
-                            CheckActiveButton(_MenuWindow.MenuWindowButtons);
-                            ActivateNextButton(ActiveButtonNumberInMainMenu);
-                            break;
-                        case ConsoleKey.Enter:
+                    case ConsoleKey.LeftArrow:
+                        CheckActiveButton(_MenuWindow.MenuWindowButtons); // Patikrinu kuris siuo metu mygtukas yra aktyvus 
+                        ActivateNextButtonInMainMenu(_activeButtonNumberInMainMenu); // Aktyvuoju sekanti mygtuka, kadangi yra tik 2 mygtukai
+                        break;
 
-                            CheckActiveButton(_MenuWindow.MenuWindowButtons);
+                    case ConsoleKey.Enter:
+                        CheckActiveButton(_MenuWindow.MenuWindowButtons);
+                        if (_activeButtonNumberInMainMenu == (int)MainMenuButtons.QUIT)
+                        {
+                            closeGUI = true;
+                        }
 
-                            if (ActiveButtonNumberInMainMenu == (int)MainMenuButtons.QUIT)
-                            {
-                                needToRender = false;
-                            }
-                            else
-                            {
-                                UsersActivityInPlayerSelectionMenu();
-                            }
-                           
-                            break;
-                    }
-                    
-
+                        closeWindow = true;
+                        break;
                 }
 
-                _MenuWindow.Render();
-
-
-                System.Threading.Thread.Sleep(250);
-
-            } while (needToRender);
+            }
         }
 
         public void UsersActivityInPlayerSelectionMenu()
         {
+            bool closeWindow = false;
 
-            bool needToRender = true;
-
-            do
+            while (closeWindow != true)
             {
-                Console.Clear();
-                while (Console.KeyAvailable)
-                {
-                    ConsoleKeyInfo pressedChar = Console.ReadKey(true);
-                    int hashCode = pressedChar.Key.GetHashCode();
-
-                    switch (pressedChar.Key)
-                    {
-                        case ConsoleKey.Escape:
-                            needToRender = false;
-                            break;
-                        case ConsoleKey.RightArrow:
-                            CheckActiveBoxes(_PlayerSelectionWindow.ListOfBoxes);
-                            if (ActiveBoxNumberInPlayerSelectionWindow < _PlayerSelectionWindow.ListOfBoxes.Count-1)
-                            {
-                                _PlayerSelectionWindow.ListOfBoxes[ActiveBoxNumberInPlayerSelectionWindow].Disable();
-                                _PlayerSelectionWindow.ListOfBoxes[ActiveBoxNumberInPlayerSelectionWindow + 1].SetActive();
-                            }
-
-                            break;
-                        case ConsoleKey.LeftArrow:
-                            CheckActiveBoxes(_PlayerSelectionWindow.ListOfBoxes);
-                            if (ActiveBoxNumberInPlayerSelectionWindow > 0)
-                            {
-                                _PlayerSelectionWindow.ListOfBoxes[ActiveBoxNumberInPlayerSelectionWindow].Disable();
-                                _PlayerSelectionWindow.ListOfBoxes[ActiveBoxNumberInPlayerSelectionWindow - 1].SetActive();
-                            }
-                            
-                            break;
-
-                        case ConsoleKey.UpArrow:
-
-                            CheckActiveBoxes(_PlayerSelectionWindow.ListOfBoxes);
-
-                            if (ActiveBoxNumberInPlayerSelectionWindow >= 3 && ActiveBoxNumberInPlayerSelectionWindow <= 5)
-                            {
-                                _PlayerSelectionWindow.ListOfBoxes[ActiveBoxNumberInPlayerSelectionWindow].Disable();
-                                _PlayerSelectionWindow.ListOfBoxes[ActiveBoxNumberInPlayerSelectionWindow - 3].SetActive();
-                            }
-                            break;
-                        case ConsoleKey.DownArrow:
-
-                            CheckActiveBoxes(_PlayerSelectionWindow.ListOfBoxes);
-
-                            if (ActiveBoxNumberInPlayerSelectionWindow >= 0 && ActiveBoxNumberInPlayerSelectionWindow <= 2)
-                            {
-                                _PlayerSelectionWindow.ListOfBoxes[ActiveBoxNumberInPlayerSelectionWindow].Disable();
-                                _PlayerSelectionWindow.ListOfBoxes[ActiveBoxNumberInPlayerSelectionWindow + 3].SetActive();
-
-                            }
-                            break;
-                        case ConsoleKey.Enter:
-                            CheckActiveBoxes(_PlayerSelectionWindow.ListOfBoxes);
-                            quantityOfPlayers = ActiveBoxNumberInPlayerSelectionWindow + 2;
-
-                            UsersActivityInQuantityOfDiceMenu();
-
-
-                            break;
-                    }
-                }
-
                 _PlayerSelectionWindow.Render();
 
-                System.Threading.Thread.Sleep(250);
+                ConsoleKeyInfo pressedChar = Console.ReadKey(true);
 
-            } while (needToRender);
+                switch (pressedChar.Key)
+                {
+                    case ConsoleKey.Escape:
+                        closeWindow = true; // isjungiu Si langa
+                        closeGUI = true;
+                        break;
+
+                    case ConsoleKey.RightArrow:
+
+                        CheckActiveBoxes(_PlayerSelectionWindow.ListOfBoxes);
+                        if (_activeBoxNumberInPlayerSelectionWindow < _PlayerSelectionWindow.ListOfBoxes.Count - 1)
+                        {
+                            _PlayerSelectionWindow.ListOfBoxes[_activeBoxNumberInPlayerSelectionWindow].Disable();
+                            _PlayerSelectionWindow.ListOfBoxes[_activeBoxNumberInPlayerSelectionWindow + 1].SetActive();
+                        }
+
+                        break;
+                    case ConsoleKey.LeftArrow:
+
+                        CheckActiveBoxes(_PlayerSelectionWindow.ListOfBoxes);
+                        if (_activeBoxNumberInPlayerSelectionWindow > 0)
+                        {
+                            _PlayerSelectionWindow.ListOfBoxes[_activeBoxNumberInPlayerSelectionWindow].Disable();
+                            _PlayerSelectionWindow.ListOfBoxes[_activeBoxNumberInPlayerSelectionWindow - 1].SetActive();
+                        }
+
+                        break;
+
+                    case ConsoleKey.UpArrow:
+
+                        CheckActiveBoxes(_PlayerSelectionWindow.ListOfBoxes);
+
+                        if (_activeBoxNumberInPlayerSelectionWindow >= 3 && _activeBoxNumberInPlayerSelectionWindow <= 5)
+                        {
+                            _PlayerSelectionWindow.ListOfBoxes[_activeBoxNumberInPlayerSelectionWindow].Disable();
+                            _PlayerSelectionWindow.ListOfBoxes[_activeBoxNumberInPlayerSelectionWindow - 3].SetActive();
+                        }
+
+                        break;
+                    case ConsoleKey.DownArrow:
+
+                        CheckActiveBoxes(_PlayerSelectionWindow.ListOfBoxes);
+
+                        if (_activeBoxNumberInPlayerSelectionWindow >= 0 && _activeBoxNumberInPlayerSelectionWindow <= 2)
+                        {
+                            _PlayerSelectionWindow.ListOfBoxes[_activeBoxNumberInPlayerSelectionWindow].Disable();
+                            _PlayerSelectionWindow.ListOfBoxes[_activeBoxNumberInPlayerSelectionWindow + 3].SetActive();
+
+                        }
+
+                        break;
+                    case ConsoleKey.Enter:
+
+                        CheckActiveBoxes(_PlayerSelectionWindow.ListOfBoxes);
+                        QuantityOfPlayers = _activeBoxNumberInPlayerSelectionWindow + 2;
+
+                        closeWindow = true;
+                        break;
+                }
+            }
+
+
+
         }
 
         public void UsersActivityInQuantityOfDiceMenu()
         {
-            
-            bool needToRender = true;
+            bool closeWindow = false;
+            DiceAmount = 0;
+            NumOfDice = new TextLine(10, 25, 100, DiceAmount.ToString());
 
-            do
+            while (closeWindow != true)
             {
-                Console.Clear();
-
-                while (Console.KeyAvailable)
-                {
-                    
-
-                    ConsoleKeyInfo pressedChar = Console.ReadKey(true);
-                    int hashCode = pressedChar.Key.GetHashCode();
-
-                    switch (pressedChar.Key)
-                    {
-                        case ConsoleKey.Escape:
-                            needToRender = false;
-                            break;
-                        case ConsoleKey.Subtract:
-                            if (number > 0)
-                            {
-                                number--;
-                            }
-                            
-                            NumOfDice = new TextLine(10, 25, 100, number.ToString());
-                            
-                            break;
-                        case ConsoleKey.Add:
-                            number++;
-                            NumOfDice = new TextLine(10, 25, 100, number.ToString());
-                            break;
-                        case ConsoleKey.Enter:
-
-                            break;
-                            
-                    }
-
-
-                }
-                
                 _QuantityOfDiceWindow.Render();
+
                 if (NumOfDice != null)
                 {
                     NumOfDice.Render();
                 }
-                
 
+                ConsoleKeyInfo pressedChar = Console.ReadKey(true);
 
-                System.Threading.Thread.Sleep(250);
+                switch (pressedChar.Key)
+                {
+                    case ConsoleKey.Escape:
+                        closeWindow = true;
+                        closeAllProgram = true;
+                        break;
 
-            } while (needToRender);
+                    case ConsoleKey.Subtract:
+
+                        if (DiceAmount > 0)
+                        {
+                            DiceAmount--;
+                        }
+
+                        NumOfDice = new TextLine(10, 25, 100, DiceAmount.ToString());
+                        break;
+
+                    case ConsoleKey.Add:
+
+                        DiceAmount++;
+                        NumOfDice = new TextLine(10, 25, 100, DiceAmount.ToString());
+                        break;
+
+                    case ConsoleKey.Enter:
+                        closeWindow = true;
+                        break;
+                }
+
+            }
+
         }
-
-
-
 
     }
 }
