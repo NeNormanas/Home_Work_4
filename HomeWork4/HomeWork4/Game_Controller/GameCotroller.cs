@@ -62,8 +62,15 @@ namespace HomeWork4.Game_Controller
                     NextRoundPlayers = MainRoundStart(_quantityOfPlayers); // grazina sarasa zaideju, kurie ismete toki pati max rezultata
 
 
+
+
+
                     while (NextRoundPlayers.Count > 1) // Suksis tol kol bus daugiau nei 1 zaidejas surinkes tiek pat tasku
                     {
+                        foreach (var item in NextRoundPlayers)
+                        {
+                            item.ResetData();
+                        }
 
                         Console.Clear();
                         _GameWindow.Render();
@@ -82,7 +89,7 @@ namespace HomeWork4.Game_Controller
                     Console.SetCursorPosition(5, 18);
                     Console.WriteLine("The WINNER is:   " + NextRoundPlayers[0].Name.ToUpper());
 
-                    System.Threading.Thread.Sleep(6000);
+                    System.Threading.Thread.Sleep(2000);
                     Console.ResetColor();
 
                     break;
@@ -98,7 +105,7 @@ namespace HomeWork4.Game_Controller
 
             Console.SetCursorPosition(0, 0);
 
-            PlayerStatus(quantityOfPlayers, _quantityOfDice, NextRoundPlayers);
+            RenderPlayersStatus(quantityOfPlayers, _quantityOfDice, NextRoundPlayers);
 
             AllPlayersRezults = AllPlayersTotalRezultsToList(NextRoundPlayers); // sudedamos reiksmes VISOS
 
@@ -107,6 +114,8 @@ namespace HomeWork4.Game_Controller
             SecondRoundPlayersList = GetSecondRoundPlayersList(IndexOfPlayersWithSameRezults, NextRoundPlayers);
 
             this.NextRoundPlayers = SecondRoundPlayersList;
+
+           
 
         }
 
@@ -120,7 +129,7 @@ namespace HomeWork4.Game_Controller
 
             Console.SetCursorPosition(0, 0);
 
-            PlayerStatus(quantityOfPlayers, _quantityOfDice, AllPlayers);
+            RenderPlayersStatus(quantityOfPlayers, _quantityOfDice, AllPlayers);
 
 
 
@@ -178,7 +187,7 @@ namespace HomeWork4.Game_Controller
 
             for (int i = 0; i < numOfPlayers; i++)
             {
-                Player player = new Player();
+                Player player = new Player(_quantityOfDice);
                 Players.Add(player);
             }
 
@@ -187,33 +196,23 @@ namespace HomeWork4.Game_Controller
 
         }
 
-        public void PlayerStatus(int quantityOfPlayers, int quantityOfDice, List<Player> playersList)
+        public void RenderPlayersStatus(int quantityOfPlayers, int quantityOfDice, List<Player> playersList)
         {
-            for (int i = 0; i < quantityOfPlayers; i++)
+            for (int i = 0; i < playersList.Count; i++)
             {
+
+                Console.SetCursorPosition(2, 5 + i + 3);
+
                 playersList[i].RollaDice(quantityOfDice);
 
-                Console.SetCursorPosition(5, 5 + i + 3);
+                playersList[i].Render();
 
-                Console.Write("{0} has these Dices rolled:  ", playersList[i].Name);
+                Console.SetCursorPosition(30, 5 + i + 3);
 
-                for (int j = 0; j < playersList[i].DiceNumbers.Count; j++)
-                {
-                    if (j != playersList[i].DiceNumbers.Count - 1)
-                    {
-                        Console.Write(playersList[i].DiceNumbers[j] + " + ");
-                    }
-                    else
-                    {
-                        Console.Write(playersList[i].DiceNumbers[j]);
-                    }
-                }
-
-
-                Console.WriteLine(" Result: " + playersList[i].TotalPoints);
-
-                Console.WriteLine();
-                System.Threading.Thread.Sleep(500);
+                playersList[i].RenderDiceNumbers();
+               
+                System.Threading.Thread.Sleep(700);
+               
 
             }
         }
@@ -226,7 +225,7 @@ namespace HomeWork4.Game_Controller
             {
 
 
-                PlayersRezultsList.Add(Players[i].TotalPoints);
+                PlayersRezultsList.Add(Players[i].TotalDicesPoints);
 
 
 

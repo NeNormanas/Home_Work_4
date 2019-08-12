@@ -11,43 +11,50 @@ namespace HomeWork4.Game_Controller
         public string Name { get;  set; } = "Player";
         private int diceNumber;
         public int TotalPoints { get; set; } = 0;
+        public int TotalDicesPoints { get; set; } = 0;
+        public Dice kauliukas { get; set; } = null;
+        public List<Dice> kauliukuSarasa { get; set; } = new List<Dice>();
        
         public List<int> DiceNumbers { get; } = new List<int>();
 
-        public Player() : base (10, 10, 10, 5)
+        public Player(int numberOfDice) : base (10, 10, 10, 5)
         {
-           
             Name = "Player " + PlayerId.ToString();
+
             PlayerId++;
-            
+
         }
 
-
-        public void RollaDice(int quantityOfDicees)
+        public void RollaDice(int numOfDice)
         {
-            for (int i = 0; i < quantityOfDicees; i++)
+            for (int i = 0; i < numOfDice; i++)
             {
-                Random rnd = new Random();
-                diceNumber = rnd.Next(1, 6);
-
-                DiceNumbers.Add(diceNumber);
-
-                TotalPoints += diceNumber;
+                kauliukas = new Dice();
+                kauliukas.Id = i + 1;
+                kauliukuSarasa.Add(kauliukas);
+                TotalDicesPoints += kauliukas.Number;
             }
         }
 
+        public void ResetData()
+        {
+            kauliukuSarasa = new List<Dice>();
+            TotalDicesPoints = 0;
+        }
+        
+
         public override void Render()
         {
-            Console.WriteLine($"{Name}, earned {TotalPoints} points.");
+            Console.Write($"{Name}, TOTAL POINTS : {TotalDicesPoints} ");
         }
 
         public void RenderDiceNumbers()
         {
-            for (int i = 0; i < DiceNumbers.Count; i++)
+            for (int i = 0; i < kauliukuSarasa.Count; i++)
             {
-                Console.SetCursorPosition(5, 20 + i + 2);
-                Console.Write(DiceNumbers[i] + "+ ");
+                kauliukuSarasa[i].Render();
             }
+
         }
     }
 }

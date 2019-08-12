@@ -113,6 +113,7 @@ namespace HomeWork4.GUI_Controller
                     case ConsoleKey.Escape:
                         closeWindow = true; // isjungiu Menu Window
                         closeGUI = true;
+                        closeAllProgram = true;
                         break;
 
                     case ConsoleKey.RightArrow:
@@ -130,8 +131,9 @@ namespace HomeWork4.GUI_Controller
                         if (_activeButtonNumberInMainMenu == (int)MainMenuButtons.QUIT)
                         {
                             closeGUI = true;
+                            closeAllProgram = true;
                         }
-
+                        
                         closeWindow = true;
                         break;
                 }
@@ -154,6 +156,7 @@ namespace HomeWork4.GUI_Controller
                     case ConsoleKey.Escape:
                         closeWindow = true; // isjungiu Si langa
                         closeGUI = true;
+                        closeAllProgram = true;
                         break;
 
                     case ConsoleKey.RightArrow:
