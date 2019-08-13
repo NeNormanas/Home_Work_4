@@ -6,7 +6,7 @@ using System.Text;
 
 namespace HomeWork4.GUI_Controller
 {
-    enum MainMenuButtons { PLAY, QUIT }
+    enum MainAndPlayAgainMenuButtons { PLAY, QUIT }
     enum BoxesInPlayerSelection { P2, P3, P4, P5, P6, P7 }
 
     class GuiController
@@ -18,6 +18,7 @@ namespace HomeWork4.GUI_Controller
         public QuantityOfDiceWindow _QuantityOfDiceWindow { get; set; }
         public GameWindow _GameWindow { get; set; }
         public GameCotroller _GameCotroller { get; set; }
+        public PlayAgainOrQuitMenuWindow _playAgainOrQuitMenuWindow { get; set; }
 
         public int QuantityOfPlayers { get; set; }
         public int DiceAmount { get; set; }
@@ -25,6 +26,8 @@ namespace HomeWork4.GUI_Controller
 
         private int _activeButtonNumberInMainMenu;
         private int _activeBoxNumberInPlayerSelectionWindow;
+       
+        public bool playAgain { get; set; }
 
         public TextLine NumOfDice { get; set; }
         public bool closeGUI { get; set; } = false;
@@ -67,6 +70,7 @@ namespace HomeWork4.GUI_Controller
                 if (listOfButtons[i].isActive == true)
                 {
                     _activeButtonNumberInMainMenu = i;
+                    _activeBoxNumberInPlayerSelectionWindow = i;
                 }
             }
         }
@@ -87,17 +91,36 @@ namespace HomeWork4.GUI_Controller
         {
             switch (activatedButtonNr)
             {
-                case (int)MainMenuButtons.PLAY:
+                case (int)MainAndPlayAgainMenuButtons.PLAY:
                     _MenuWindow.PlayButton.Disable();
                     _MenuWindow.QuitButton.SetActive();
                     break;
-                case (int)MainMenuButtons.QUIT:
+                case (int)MainAndPlayAgainMenuButtons.QUIT:
                     _MenuWindow.QuitButton.Disable();
                     _MenuWindow.PlayButton.SetActive();
                     break;
                 default:
                     break;
             }
+        }
+
+        public void ActivateNextButtonInPlayAgainMenu(int activatedButtonNr)
+        {
+            switch (activatedButtonNr)
+            {
+                case (int)MainAndPlayAgainMenuButtons.PLAY:
+                    _playAgainOrQuitMenuWindow.PlayAgain.Disable();
+                    _playAgainOrQuitMenuWindow.QuitButton.SetActive();
+                    
+                    break;
+                case (int)MainAndPlayAgainMenuButtons.QUIT:
+                    _playAgainOrQuitMenuWindow.QuitButton.Disable();
+                    _playAgainOrQuitMenuWindow.PlayAgain.SetActive();
+                    break;
+                default:
+                    break;
+            }
+
         }
 
         public void UsersActivityInMainMenu()
@@ -128,7 +151,7 @@ namespace HomeWork4.GUI_Controller
 
                     case ConsoleKey.Enter:
                         CheckActiveButton(_MenuWindow.MenuWindowButtons);
-                        if (_activeButtonNumberInMainMenu == (int)MainMenuButtons.QUIT)
+                        if (_activeButtonNumberInMainMenu == (int)MainAndPlayAgainMenuButtons.QUIT)
                         {
                             closeGUI = true;
                             closeAllProgram = true;
@@ -261,6 +284,54 @@ namespace HomeWork4.GUI_Controller
                         closeWindow = true;
                         break;
                 }
+
+            }
+
+        }
+
+        public void UsersActivityInPlayAgainMenu()
+        {
+            _playAgainOrQuitMenuWindow = new PlayAgainOrQuitMenuWindow();
+
+            bool closeWindow = false;
+
+            while (closeWindow != true)
+            {
+                _playAgainOrQuitMenuWindow.Render(); 
+
+                ConsoleKeyInfo pressedChar = Console.ReadKey(true);
+                switch (pressedChar.Key)
+                {
+                    case ConsoleKey.Escape:
+                        closeWindow = true; // isjungiu Menu Window
+                        closeGUI = true;
+                        closeAllProgram = true;
+                        break;
+
+                    case ConsoleKey.RightArrow:
+                        CheckActiveButton(_playAgainOrQuitMenuWindow.PlayAgainButtonsList); // Patikrinu kuris siuo metu mygtukas yra aktyvus 
+                        ActivateNextButtonInPlayAgainMenu(_activeBoxNumberInPlayerSelectionWindow); // Aktyvuoju sekanti mygtuka, kadangi yra tik 2 mygtukai
+                        break;
+
+                    case ConsoleKey.LeftArrow:
+                        CheckActiveButton(_playAgainOrQuitMenuWindow.PlayAgainButtonsList); // Patikrinu kuris siuo metu mygtukas yra aktyvus 
+                        ActivateNextButtonInPlayAgainMenu(_activeBoxNumberInPlayerSelectionWindow); // Aktyvuoju sekanti mygtuka, kadangi yra tik 2 mygtukai
+                        break;
+
+                    case ConsoleKey.Enter:
+                        CheckActiveButton(_playAgainOrQuitMenuWindow.PlayAgainButtonsList);
+                        playAgain = true;
+                        if (_activeBoxNumberInPlayerSelectionWindow == (int)MainAndPlayAgainMenuButtons.QUIT)
+                        {
+                            closeGUI = true;
+                            closeAllProgram = true;
+                            playAgain = false;
+                        }
+                        closeWindow = true;
+                        break;
+                }
+
+
 
             }
 

@@ -25,6 +25,9 @@ namespace HomeWork4.Game_Controller
 
 
         public Button _startButton { get; private set; }
+        public Button RepeatGame { get; set; }
+        public Button Quit { get; set; }
+        public Button MainMenu { get; set; }
         private GameWindow _GameWindow { get; set; }
 
 
@@ -61,10 +64,6 @@ namespace HomeWork4.Game_Controller
 
                     NextRoundPlayers = MainRoundStart(_quantityOfPlayers); // grazina sarasa zaideju, kurie ismete toki pati max rezultata
 
-
-
-
-
                     while (NextRoundPlayers.Count > 1) // Suksis tol kol bus daugiau nei 1 zaidejas surinkes tiek pat tasku
                     {
                         foreach (var item in NextRoundPlayers)
@@ -82,14 +81,13 @@ namespace HomeWork4.Game_Controller
                         Console.WriteLine("Round Played: " + _roundNumber);
                     }
 
-
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.SetCursorPosition(2, 2);
                     Console.WriteLine("Round Played : " + _roundNumber);
                     Console.SetCursorPosition(5, 18);
                     Console.WriteLine("The WINNER is:   " + NextRoundPlayers[0].Name.ToUpper());
-
-                    System.Threading.Thread.Sleep(2000);
+                    
+                    System.Threading.Thread.Sleep(3000);
                     Console.ResetColor();
 
                     break;

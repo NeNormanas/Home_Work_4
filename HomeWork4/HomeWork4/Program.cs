@@ -32,16 +32,14 @@ namespace HomeWork4
 
                 Console.Clear();
 
-                Console.WriteLine("Do you wantto Play again? " + " PRESS ENTER!");
+                // GUI CONTROLER PLAY AGAIN MENU
 
-                ConsoleKeyInfo pressedChar = Console.ReadKey(true);
-                switch (pressedChar.Key)
+                guiController.UsersActivityInPlayAgainMenu();
+
+                if (guiController.playAgain == true)
                 {
-                    case ConsoleKey.Enter:
-                        playAgain = true;
-                        break;
+                    playAgain = true;
                 }
-                
 
             } while (playAgain != false);
 

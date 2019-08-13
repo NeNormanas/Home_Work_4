@@ -41,7 +41,6 @@ namespace HomeWork4.Game_Controller
             kauliukuSarasa = new List<Dice>();
             TotalDicesPoints = 0;
         }
-        
 
         public override void Render()
         {
